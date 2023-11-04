@@ -121,6 +121,10 @@ public class PetStoreServiceImpl implements PetStoreService {
 	public Collection<Product> getProducts(String category, List<Tag> tags) {
 		List<Product> products = new ArrayList<>();
 
+		this.sessionUser.getTelemetryClient().trackEvent(
+				String.format("PetStoreApp user %s is requesting to retrieve products from the PetStorePetService",
+						this.sessionUser.getName()),
+				this.sessionUser.getCustomEventProperties(), null);
 		try {
 			Consumer<HttpHeaders> consumer = it -> it.addAll(this.webRequest.getHeaders());
 			products = this.productServiceWebClient.get()
@@ -148,12 +152,20 @@ public class PetStoreServiceImpl implements PetStoreService {
 				products = products.stream().filter(product -> category.equals(product.getCategory().getName())
 						&& product.getTags().toString().contains("small")).collect(Collectors.toList());
 			}
+			// Log the number of items returned
+			int itemCount = products.size();
+			logger.info("Number of product items returned: " + itemCount);
 			return products;
 		} catch (
 
 		WebClientException wce) {
 			// little hack to visually show the error message within our Azure Pet Store
 			// Reference Guide (Academic Tutorial)
+			this.sessionUser.getTelemetryClient().trackException(wce);
+			this.sessionUser.getTelemetryClient().trackEvent(
+					String.format("PetStoreApp %s received %s, container host: %s", this.sessionUser.getName(),
+							wce.getMessage(), this.containerEnvironment.getContainerHostName()));
+
 			Product product = new Product();
 			product.setName(wce.getMessage());
 			product.setPhotoURL("");

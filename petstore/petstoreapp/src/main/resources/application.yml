@@ -39,3 +39,7 @@ spring:
     cache: false
   cache:
     cache-names: currentUsers
+# Application Insights Configuration
+azure:
+  application-insights:
+    instrumentation-key: ${INSTRUMENTATION_KEY}

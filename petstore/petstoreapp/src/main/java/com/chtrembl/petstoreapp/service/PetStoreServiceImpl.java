@@ -118,7 +118,7 @@ public class PetStoreServiceImpl implements PetStoreService {
 	}
 
 	@Override
-	public Collection<Product> getProducts(String category, List<Tag> tags) throws Exception {
+	public Collection<Product> getProducts(String category, List<Tag> tags) {
 		List<Product> products = new ArrayList<>();
 
 		this.sessionUser.getTelemetryClient().trackEvent(
@@ -184,6 +184,10 @@ public class PetStoreServiceImpl implements PetStoreService {
 			product.setCategory(new Category());
 			product.setId((long) 0);
 			products.add(product);
+		}
+		catch (Exception e) {
+			// Log the error message for the generic Exception
+			logger.error("Error: " + e.getMessage());
 		}
 		return products;
 	}

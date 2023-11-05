@@ -118,7 +118,7 @@ public class PetStoreServiceImpl implements PetStoreService {
 	}
 
 	@Override
-	public Collection<Product> getProducts(String category, List<Tag> tags) {
+	public Collection<Product> getProducts(String category, List<Tag> tags) throws Exception {
 		List<Product> products = new ArrayList<>();
 
 		this.sessionUser.getTelemetryClient().trackEvent(
@@ -155,7 +155,8 @@ public class PetStoreServiceImpl implements PetStoreService {
 			// Log the number of items returned
 			int itemCount = products.size();
 			logger.info("Number of product items returned: " + itemCount);
-			return products;
+
+			throw new Exception("Cannot move further");
 		} catch (
 
 		WebClientException wce) {

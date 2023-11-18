@@ -8,6 +8,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.chtrembl.petstore.pet.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -25,10 +26,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.chtrembl.petstore.pet.model.ContainerEnvironment;
-import com.chtrembl.petstore.pet.model.DataPreload;
-import com.chtrembl.petstore.pet.model.ModelApiResponse;
-import com.chtrembl.petstore.pet.model.Pet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -48,18 +45,21 @@ public class PetApiController implements PetApi {
 	@Autowired
 	private ContainerEnvironment containerEnvironment;
 
-	@Autowired
-	private DataPreload dataPreload;
+//	@Autowired
+//	private DataPreload dataPreload;
 
-	@Override
-	public DataPreload getBeanToBeAutowired() {
-		return dataPreload;
-	}
+	private final IPet petRepository;
+
+//	@Override
+//	public DataPreload getBeanToBeAutowired() {
+//		return dataPreload;
+//	}
 
 	@org.springframework.beans.factory.annotation.Autowired
-	public PetApiController(ObjectMapper objectMapper, NativeWebRequest request) {
+	public PetApiController(ObjectMapper objectMapper, NativeWebRequest request, IPet petRepository) {
 		this.objectMapper = objectMapper;
 		this.request = request;
+		this.petRepository = petRepository;
 	}
 
 	// should really be in an interceptor
@@ -89,8 +89,10 @@ public class PetApiController implements PetApi {
 
 	@Override
 	public ResponseEntity<List<Pet>> findPetsByStatus(
-			@NotNull @ApiParam(value = "Status values that need to be considered for filter", required = true, allowableValues = "available, pending, sold") @Valid @RequestParam(value = "status", required = true) List<String> status) {
+			@NotNull @ApiParam(value = "Status values that need to be considered for filter", required = true, allowableValues = "available, pending, sold")
+			@Valid @RequestParam(value = "status", required = true) List<String> status) {
 		conigureThreadForLogging();
+		log.info("Received status values: {}", status);
 
 		String acceptType = request.getHeader("Content-Type");
 		String contentType = request.getHeader("Content-Type");
@@ -100,7 +102,7 @@ public class PetApiController implements PetApi {
 					"PetStorePetService incoming GET request to petstorepetservice/v2/pet/findPetsByStatus?status=%s",
 					status));
 			try {
-				String petsJSON = new ObjectMapper().writeValueAsString(this.getPreloadedPets());
+				String petsJSON = new ObjectMapper().writeValueAsString(this.getPreloadedPets(petRepository));
 				ApiUtil.setResponse(request, "application/json", petsJSON);
 				return new ResponseEntity<>(HttpStatus.OK);
 			} catch (JsonProcessingException e) {

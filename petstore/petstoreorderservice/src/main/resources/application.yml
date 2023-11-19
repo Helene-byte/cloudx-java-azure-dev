@@ -18,10 +18,10 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   azure:
-    cosmosdb:
+    cosmos:
       uri: https://petapp-cosmosdb.documents.azure.com:443/
-      key: zuLUNW6Hws4WaXz3Xgv1Wmem6h0N1Q3VAXX2vD7EatHyNZ3VnxxLMZ3G1x5ofjRG5R5ukLELbpeFACDbXJ9RHw==
-      secondaryKey: zo2Gc3J8RupKbaP3YYnJ0zDibLG9bSvswLyIwoAzU1Unx3dXCVCz03irs0cqjljsANSPbKXs0XMtACDbUkkEKw==
+      key:
+      secondaryKey:
       database: ToDoList
 
 management:

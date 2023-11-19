@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.chtrembl.petstore.order.repository.Swagger2SpringBoot;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.chtrembl.petstore.order.api.StoreApiController;
-
-import io.swagger.Swagger2SpringBoot;
+import com.chtrembl.petstore.order.repository.StoreApiController;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = StoreApiController.class)

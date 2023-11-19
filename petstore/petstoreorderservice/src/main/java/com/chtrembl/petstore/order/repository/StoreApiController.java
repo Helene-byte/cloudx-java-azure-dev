@@ -1,8 +1,7 @@
-package com.chtrembl.petstore.order.api;
+package com.chtrembl.petstore.order.repository;
 
+import com.chtrembl.petstore.order.api.ApiUtil;
 import com.chtrembl.petstore.order.model.*;
-import com.chtrembl.petstore.order.repository.IOrder;
-import com.chtrembl.petstore.order.repository.IProduct;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;

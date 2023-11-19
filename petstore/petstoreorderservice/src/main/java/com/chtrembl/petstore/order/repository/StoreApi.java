@@ -3,7 +3,7 @@
  * https://github.com/swagger-api/swagger-codegen
  * Do not edit the class manually.
  */
-package com.chtrembl.petstore.order.api;
+package com.chtrembl.petstore.order.repository;
 
 import java.util.Map;
 import java.util.Optional;

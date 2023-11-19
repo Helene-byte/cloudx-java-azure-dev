@@ -1,4 +1,4 @@
-package com.chtrembl.petstore.order;
+package com.chtrembl.petstore.order.repository;
 
 import com.chtrembl.petstore.order.model.ContainerEnvironment;
 //import com.microsoft.azure.spring.data.cosmosdb.repository.config.EnableCosmosRepositories;

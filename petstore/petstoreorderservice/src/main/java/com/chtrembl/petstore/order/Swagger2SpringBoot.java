@@ -1,24 +1,24 @@
-package io.swagger;
+package com.chtrembl.petstore.order;
 
 import com.chtrembl.petstore.order.model.ContainerEnvironment;
+import com.microsoft.azure.spring.data.cosmosdb.repository.config.EnableCosmosRepositories;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.client.RestTemplate;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
-@EnableCaching
+@EnableCosmosRepositories(basePackages = "com.chtrembl.petstore.order.repository")
 @EnableSwagger2
-@ComponentScan(basePackages = { "io.swagger", "com.chtrembl.petstore.order.api", "io.swagger.configuration" })
+@ComponentScan(basePackages = { "io.swagger", "com.chtrembl.petstore.order.api", "io.swagger.configuration",
+		"com.chtrembl.petstore.order.model", "com.chtrembl.petstore.order.repository" })
 public class Swagger2SpringBoot implements CommandLineRunner {
 	static final Logger log = LoggerFactory.getLogger(Swagger2SpringBoot.class);
 

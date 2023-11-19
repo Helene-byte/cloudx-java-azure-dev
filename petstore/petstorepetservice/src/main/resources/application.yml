@@ -13,9 +13,9 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   datasource:
-    url: jdbc:postgresql://localhost:5432/petstorepetservice_db
-    username: postgres
-    password: admin
+    url: jdbc:postgresql://petapp-postgres.postgres.database.azure.com/petstorepetservice_db
+    username: ${USER_PG}
+    password: ${PASSWORD_PG}
 
   sql:
     init:

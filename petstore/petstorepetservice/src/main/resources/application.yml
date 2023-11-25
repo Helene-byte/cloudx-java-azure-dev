@@ -40,7 +40,7 @@ spring:
     show_sql: true
 logging:
   level:
-    com.microsoft.azure.keyvault: DEBUG
+#    com.microsoft.azure.keyvault: DEBUG
     org.springframework.cloud.azure: DEBUG
 
 management:

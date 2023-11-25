@@ -12,6 +12,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
+import com.chtrembl.petstore.order.repository.IOrder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,12 +42,12 @@ public interface StoreApi {
 
 	// wired in for the scenario the interface declarations need access to scoped
 	// beans, all implementation should occur in Controller tho
-	public StoreApiCache getBeanToBeAutowired();
+//	public StoreApiCache getBeanToBeAutowired();
 
 	// wired in for the scenario the interface declarations need access to scoped
 	// beans, all implementation should occur in Controller tho
-	default Order getStoreApiCache(String id) {
-		return getBeanToBeAutowired().getOrder(id);
+	default Optional<Order> getStoreApiCosmosDB(String id, IOrder iOrder) {
+		return iOrder.findById(id);
 	}
 
 	@ApiOperation(value = "Delete purchase order by ID", nickname = "deleteOrder", notes = "For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors", tags = {

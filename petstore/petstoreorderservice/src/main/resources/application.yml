@@ -10,6 +10,18 @@ petstore:
   service:
     product:
       url: ${PETSTOREPRODUCTSERVICE_URL:http://localhost:8082}
+    app:
+      url: ${PETSTOREPRODUCTSERVICE_URL:http://localhost:8082}
+
+
+  cosmosdb:
+    database:
+      name: petstore-eastus-cosmosdb-db
+    container:
+      name: order
+    account:
+      host: ${COSMOSDB_ACCOUNT_HOST}
+      key: ${COSMOSDB_ACCOUNT_KEY}
 
 spring:
   application:

@@ -12,6 +12,16 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  datasource:
+    url: ${springboot-datasource-url}
+    username: ${springboot-datasource-username}
+    password: ${springboot-datasource-pass}
+  cloud.azure:
+    keyvault:
+      secret:
+        property-source-enabled: true
+        property-sources[0]:
+          endpoint: https://petapp-keyvault.vault.azure.net/
 
 management:
   endpoints:

@@ -1,14 +1,16 @@
 package com.chtrembl.petstore.order.api;
 
-import com.chtrembl.petstore.order.model.*;
-import com.chtrembl.petstore.order.repository.IOrder;
-import com.chtrembl.petstore.order.repository.IProduct;
+import com.chtrembl.petstore.order.model.ContainerEnvironment;
+import com.chtrembl.petstore.order.model.Order;
+import com.chtrembl.petstore.order.model.Product;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,7 +27,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2021-12-21T10:17:19.885-05:00")
 
@@ -39,33 +40,25 @@ public class StoreApiController implements StoreApi {
 
 	private final NativeWebRequest request;
 
-
-//	@Autowired
-//	@Qualifier(value = "cacheManager")
-//	private CacheManager cacheManager;
-
-	private final IOrder orderRepository;
-
-
-	private final IProduct productRepository;
+	@Autowired
+	@Qualifier(value = "cacheManager")
+	private CacheManager cacheManager;
 
 	@Autowired
 	private ContainerEnvironment containerEnvironment;
 
-//	@Autowired
-//	private StoreApiCache storeApiCache;
-//
-//	@Override
-//	public StoreApiCache getBeanToBeAutowired() {
-//		return storeApiCache;
-//	}
+	@Autowired
+	private StoreApiCache storeApiCache;
+
+	@Override
+	public StoreApiCache getBeanToBeAutowired() {
+		return storeApiCache;
+	}
 
 	@org.springframework.beans.factory.annotation.Autowired
-	public StoreApiController(ObjectMapper objectMapper, NativeWebRequest request, IOrder orderRepository, IProduct productRepository) {
+	public StoreApiController(ObjectMapper objectMapper, NativeWebRequest request) {
 		this.objectMapper = objectMapper;
 		this.request = request;
-		this.orderRepository = orderRepository;
-		this.productRepository = productRepository;
 	}
 
 	// should really be in an interceptor
@@ -88,14 +81,21 @@ public class StoreApiController implements StoreApi {
 		String password = "foobar";
 		log.info("PetStoreOrderService incoming GET request to petstoreorderservice/v2/info");
 
-		long ordersCount = orderRepository.count();
+		int ordersCacheSize = 0;
+		try {
+			org.springframework.cache.concurrent.ConcurrentMapCache mapCache = ((org.springframework.cache.concurrent.ConcurrentMapCache) this.cacheManager
+					.getCache("orders"));
+			ordersCacheSize = mapCache.getNativeCache().size();
+		} catch (Exception e) {
+			log.warn(String.format("could not get the orders cache size :%s", e.getMessage()));
+		}
 
 		// giving consumers JSON regardless here, info wasn't part of the swagger
 		// contract :)
 		ApiUtil.setResponse(request, "application/json",
 				"{ \"service\" : \"order service\", \"version\" : \"" + containerEnvironment.getAppVersion()
 						+ "\", \"container\" : \"" + containerEnvironment.getContainerHostName()
-						+ "\", \"ordersCacheSize\" : \"" + ordersCount + "\", \"author\" : \"" + containerEnvironment.getAuthor()
+						+ "\", \"ordersCacheSize\" : \"" + ordersCacheSize + "\", \"author\" : \"" + containerEnvironment.getAuthor()
 						+ "\" }");
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
@@ -114,13 +114,56 @@ public class StoreApiController implements StoreApi {
 					"PetStoreOrderService incoming POST request to petstoreorderservice/v2/order/placeOder for order id:%s",
 					body.getId()));
 
+			this.storeApiCache.getOrder(body.getId()).setId(body.getId());
+			this.storeApiCache.getOrder(body.getId()).setEmail(body.getEmail());
+			this.storeApiCache.getOrder(body.getId()).setComplete(body.isComplete());
 
-			// Save the order to CosmosDB
-			Order savedOrder = orderRepository.save(body);
+			// 1 product is just an add from a product page so cache needs to be updated
+			if (body.getProducts() != null && body.getProducts().size() == 1) {
+				Product incomingProduct = body.getProducts().get(0);
+				List<Product> existingProducts = this.storeApiCache.getOrder(body.getId()).getProducts();
+				if (existingProducts != null && existingProducts.size() > 0) {
+					// removal if one exists...
+					if (incomingProduct.getQuantity() == 0) {
+						existingProducts.removeIf(product -> product.getId().equals(incomingProduct.getId()));
+						this.storeApiCache.getOrder(body.getId()).setProducts(existingProducts);
+					}
+					// update quantity if one exists or add new entry
+					else {
+
+						Product product = existingProducts.stream()
+								.filter(existingProduct -> existingProduct.getId().equals(incomingProduct.getId()))
+								.findAny().orElse(null);
+						if (product != null) {
+							// one exists
+							int qty = product.getQuantity() + incomingProduct.getQuantity();
+							// if the count falls below 1, remove it
+							if (qty < 1) {
+								existingProducts.removeIf(p -> p.getId().equals(incomingProduct.getId()));
+							} else if (qty < 11) {
+								product.setQuantity(qty);
+							}
+						} else {
+							// existing products but one does not exist matching the incoming product
+							this.storeApiCache.getOrder(body.getId()).addProductsItem(body.getProducts().get(0));
+						}
+					}
+				} else {
+					// nothing existing....
+					if (body.getProducts().get(0).getQuantity() > 0) {
+						this.storeApiCache.getOrder(body.getId()).setProducts(body.getProducts());
+					}
+				}
+			}
+			// n products is the current order being modified and so cache can be replaced
+			// with it
+			if (body.getProducts() != null && body.getProducts().size() > 1) {
+				this.storeApiCache.getOrder(body.getId()).setProducts(body.getProducts());
+			}
 
 			try {
-
-				String orderJSON = new ObjectMapper().writeValueAsString(savedOrder);
+				Order order = this.storeApiCache.getOrder(body.getId());
+				String orderJSON = new ObjectMapper().writeValueAsString(order);
 
 				ApiUtil.setResponse(request, "application/json", orderJSON);
 				return new ResponseEntity<>(HttpStatus.OK);
@@ -148,14 +191,10 @@ public class StoreApiController implements StoreApi {
 					"PetStoreOrderService incoming GET request to petstoreorderservice/v2/order/getOrderById for order id:%s",
 					orderId));
 
-			// Retrieve the order from CosmosDB
-			Optional<Order> orderOptional = orderRepository.findById(orderId);
+			List<Product> products = this.storeApiCache.getProducts();
 
-			if (orderOptional.isPresent()) {
-				Order order = orderOptional.get();
+			Order order = this.storeApiCache.getOrder(orderId);
 
-			// Assuming CosmosDB repository for Product
-			List<Product> products = (List<Product>) productRepository.findAll();
 			if (products != null) {
 				// cross reference order data (order only has product id and qty) with product
 				// data....
@@ -183,14 +222,13 @@ public class StoreApiController implements StoreApi {
 			}
 		}
 
-	}return new ResponseEntity<Order>(HttpStatus.NOT_IMPLEMENTED);}
+		return new ResponseEntity<Order>(HttpStatus.NOT_IMPLEMENTED);
+	}
 
-	private Product getProduct(List<Product> products, String id) {
+	private Product getProduct(List<Product> products, Long id) {
 		conigureThreadForLogging();
 
-			Optional<Product> productOptional = productRepository.findById(id);
-
-			return productOptional.orElse(null);
+		return products.stream().filter(product -> id.equals(product.getId())).findAny().orElse(null);
 	}
 
 	@Override

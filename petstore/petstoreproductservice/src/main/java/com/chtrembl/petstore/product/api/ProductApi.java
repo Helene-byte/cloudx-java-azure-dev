@@ -5,19 +5,34 @@
  */
 package com.chtrembl.petstore.product.api;
 
-import com.chtrembl.petstore.product.model.IProduct;
-import com.chtrembl.petstore.product.model.ModelApiResponse;
-import com.chtrembl.petstore.product.model.Product;
-import io.swagger.annotations.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.chtrembl.petstore.product.model.DataPreload;
+import com.chtrembl.petstore.product.model.ModelApiResponse;
+import com.chtrembl.petstore.product.model.Product;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2021-12-21T10:17:09.908-05:00")
 
@@ -32,12 +47,12 @@ public interface ProductApi {
 
 	// wired in for the scenario the interface declarations need access to scoped
 	// beans, all implementation should occur in Controller tho
-//	public DataPreload getBeanToBeAutowired();
+	public DataPreload getBeanToBeAutowired();
 
 	// wired in for the scenario the interface declarations need access to scoped
 	// beans, all implementation should occur in Controller tho
-	default List<Product> getPreloadedProducts(IProduct iProduct) {
-		return iProduct.findAll();
+	default List<Product> getPreloadedProducts() {
+		return getBeanToBeAutowired().getProducts();
 	}
 
 	@ApiOperation(value = "Add a new product to the store", nickname = "addProduct", notes = "", authorizations = {

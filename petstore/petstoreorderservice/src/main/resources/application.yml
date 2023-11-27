@@ -17,12 +17,6 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-  azure:
-    cosmos:
-      uri: https://petapp-cosmosdb.documents.azure.com:443/
-      key:
-      secondaryKey:
-      database: ToDoList
 
 management:
   endpoints:

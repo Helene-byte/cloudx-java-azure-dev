@@ -13,6 +13,27 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+  datasource:
+    url: jdbc:postgresql://petapp-postgres.postgres.database.azure.com/petstoreproductservice_db
+    username: ${USER_PG}
+    password: ${PASSWORD_PG}
+
+  sql:
+    init:
+      mode: always
+    #      schema-locations: classpath:schema.sql
+    #      data-locations: classpath:data.sql
+    #      platform: postgresql
+  jpa:
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    hibernate:
+      ddl-auto: create
+    show_sql: true
+
 management:
   endpoints:
     web:

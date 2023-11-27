@@ -1,7 +1,5 @@
 package com.chtrembl.petstore.order.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.applicationinsights.core.dependencies.google.common.io.CharStreams;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,28 +8,29 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Calendar;
+
 import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.applicationinsights.core.dependencies.google.common.io.CharStreams;
+
+import ch.qos.logback.core.joran.spi.JoranException;
+
+@SuppressWarnings("serial")
 public class ContainerEnvironment implements Serializable {
 	private static Logger logger = LoggerFactory.getLogger(ContainerEnvironment.class);
-	public static final String UNKNOWN = "unknown";
 	private String containerHostName = null;
 	private String appVersion = null;
 	private String appDate = null;
 	private String year = null;
-
-	@Value("${petstore.service.app.url}")
-	private String petStoreAppURL;
-
-//	@Value("${petstore.service.orderreservationfn.url}")
-//	private String petStoreOrderReservationFnURL
+	private String author = "Chris Tremblay MSFT";
 
 	@PostConstruct
-	private void initialize() {
+	private void initialize() throws JoranException {
 
 		try {
 			this.setContainerHostName(
@@ -53,8 +52,8 @@ public class ContainerEnvironment implements Serializable {
 			this.setAppDate(version.getDate());
 		} catch (IOException e) {
 			logger.info("error parsing file " + e.getMessage());
-			this.setAppVersion(UNKNOWN);
-			this.setAppDate(UNKNOWN);
+			this.setAppVersion("unknown");
+			this.setAppDate("unknown");
 		}
 
 		this.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
@@ -93,22 +92,6 @@ public class ContainerEnvironment implements Serializable {
 	}
 
 	public String getAuthor() {
-		return "Chris Tremblay MSFT";
+		return author;
 	}
-
-	public String getPetStoreAppURL() {
-		return petStoreAppURL;
-	}
-
-	public void setPetStoreAppURL(String petStoreAppURL) {
-		this.petStoreAppURL = petStoreAppURL;
-	}
-
-//	public String getPetStoreOrderReservationFnURL() {
-//		return petStoreOrderReservationFnURL;
-//	}
-//
-//	public void setPetStoreOrderReservationFnURL(String petStoreOrderReservationFnURL) {
-//		this.petStoreOrderReservationFnURL = petStoreOrderReservationFnURL;
-//	}
 }

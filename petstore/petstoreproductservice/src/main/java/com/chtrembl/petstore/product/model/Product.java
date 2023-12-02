@@ -1,50 +1,40 @@
 package com.chtrembl.petstore.product.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
-import org.springframework.validation.annotation.Validated;
-
-import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.validation.annotation.Validated;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Pet
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2021-12-20T15:31:39.272-05:00")
-@Entity
-@Table(name="product")
+
 public class Product {
-	@Id
-	@Column(name="product_id")
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	@JsonProperty("id")
 	private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "category_id", nullable = false)
 	@JsonProperty("category")
 	private Category category;
 
-	@Column(name="product_name")
 	@JsonProperty("name")
 	private String name;
 
-	@Column(name="product_photoURL")
 	@JsonProperty("photoURL")
 	@Valid
 	private String photoURL;
 
-	@ManyToMany
-	@JoinTable(
-			name = "product_tag",
-			joinColumns = @JoinColumn(name = "product_id"),
-			inverseJoinColumns = @JoinColumn(name = "tag_id")
-	)
 	@JsonProperty("tags")
 	@Valid
 	private List<Tag> tags = null;
@@ -52,42 +42,42 @@ public class Product {
 	/**
 	 * pet status in the store
 	 */
-//	public enum StatusEnum {
-//		AVAILABLE("available"),
-//
-//		PENDING("pending"),
-//
-//		SOLD("sold");
-//
-//		private String value;
-//
-//		StatusEnum(String value) {
-//			this.value = value;
-//		}
-//
-//		@JsonValue
-//		public String getValue() {
-//			return value;
-//		}
-//
-//		@Override
-//		public String toString() {
-//			return String.valueOf(value);
-//		}
-//
-//		@JsonCreator
-//		public static StatusEnum fromValue(String value) {
-//			for (StatusEnum b : StatusEnum.values()) {
-//				if (b.value.equals(value)) {
-//					return b;
-//				}
-//			}
-//			throw new IllegalArgumentException("Unexpected value '" + value + "'");
-//		}
-//	}
-	@Column(name="status")
+	public enum StatusEnum {
+		AVAILABLE("available"),
+
+		PENDING("pending"),
+
+		SOLD("sold");
+
+		private String value;
+
+		StatusEnum(String value) {
+			this.value = value;
+		}
+
+		@JsonValue
+		public String getValue() {
+			return value;
+		}
+
+		@Override
+		public String toString() {
+			return String.valueOf(value);
+		}
+
+		@JsonCreator
+		public static StatusEnum fromValue(String value) {
+			for (StatusEnum b : StatusEnum.values()) {
+				if (b.value.equals(value)) {
+					return b;
+				}
+			}
+			throw new IllegalArgumentException("Unexpected value '" + value + "'");
+		}
+	}
+
 	@JsonProperty("status")
-	private String status;
+	private StatusEnum status;
 
 	public Product id(Long id) {
 		this.id = id;
@@ -198,7 +188,7 @@ public class Product {
 		this.tags = tags;
 	}
 
-	public Product status(String status) {
+	public Product status(StatusEnum status) {
 		this.status = status;
 		return this;
 	}
@@ -210,11 +200,11 @@ public class Product {
 	 */
 	@ApiModelProperty(value = "pet status in the store")
 
-	public String getStatus() {
+	public StatusEnum getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(StatusEnum status) {
 		this.status = status;
 	}
 

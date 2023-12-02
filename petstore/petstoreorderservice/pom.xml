@@ -28,7 +28,6 @@
         <junit.version>4.13.2</junit.version>
         <jaxb.version>2.4.0-b180830.0359</jaxb.version>
         <azure.cosmos.version>4.41.0</azure.cosmos.version>
-        <azure.cosmosdb.version>2.3.0</azure.cosmosdb.version>
         <azure.servicebus.version>7.13.3</azure.servicebus.version>
         <lombock.version>1.18.24</lombock.version>
     </properties>
@@ -96,11 +95,11 @@
             <artifactId>jaxb-api</artifactId>
             <version>${jaxb.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>spring-data-cosmosdb</artifactId>
-            <version>${azure.cosmosdb.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.azure</groupId>-->
+<!--            <artifactId>azure-cosmos</artifactId>-->
+<!--            <version>${azure.cosmos.version}</version>-->
+<!--        </dependency>-->
 <!--        <dependency>-->
 <!--            <groupId>com.azure</groupId>-->
 <!--            <artifactId>azure-messaging-servicebus</artifactId>-->

@@ -14,9 +14,9 @@ spring:
       matching-strategy: ant_path_matcher
 
   datasource:
-    url: jdbc:postgresql://petapp-postgres.postgres.database.azure.com/petstoreproductservice_db
-    username: ${USER_PG}
-    password: ${PASSWORD_PG}
+    url: "@Microsoft.KeyVault(SecretUri=https://petapp-keyvault.vault.azure.net/secrets/springboot-datasource-url/87b768e40e76409c83c52824a36aad4b)"
+    username: "@Microsoft.KeyVault(SecretUri=https://petapp-keyvault.vault.azure.net/secrets/springboot-datasource-username/ef92c5c49a704bfcb3966642c12b64a8)"
+    password: "@Microsoft.KeyVault(SecretUri=https://petapp-keyvault.vault.azure.net/secrets/springboot-datasource-pass/b7609d9f011f4ae0a40193af18684786)"
 
   sql:
     init:

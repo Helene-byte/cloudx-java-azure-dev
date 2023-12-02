@@ -1,13 +1,16 @@
 package com.chtrembl.petstore.pet.model;
 
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class DataPreload {
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
+@EnableConfigurationProperties
+@ConfigurationProperties("data")
+public class DataPreload {
 	private List<Pet> pets = new ArrayList<>();
 
 	public List<Pet> getPets() {

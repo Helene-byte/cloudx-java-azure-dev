@@ -3,6 +3,7 @@ package com.chtrembl.petstore.order.api;
 import com.chtrembl.petstore.order.model.ContainerEnvironment;
 import com.chtrembl.petstore.order.model.Order;
 import com.chtrembl.petstore.order.model.Product;
+import com.chtrembl.petstore.order.service.OrderReservationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
@@ -48,7 +49,11 @@ public class StoreApiController implements StoreApi {
 	private ContainerEnvironment containerEnvironment;
 
 	@Autowired
+	OrderReservationService orderReservationService;
+
+	@Autowired
 	private StoreApiCache storeApiCache;
+
 
 	@Override
 	public StoreApiCache getBeanToBeAutowired() {
@@ -113,6 +118,12 @@ public class StoreApiController implements StoreApi {
 			log.info(String.format(
 					"PetStoreOrderService incoming POST request to petstoreorderservice/v2/order/placeOder for order id:%s",
 					body.getId()));
+
+			log.info(String.format(
+					"PetStoreOrderService incoming POST request to petstoreorderservice/v2/order/placeOder for order id:%s",
+					body));
+
+			orderReservationService.updateOrder(body);
 
 			this.storeApiCache.getOrder(body.getId()).setId(body.getId());
 			this.storeApiCache.getOrder(body.getId()).setEmail(body.getEmail());
@@ -227,7 +238,7 @@ public class StoreApiController implements StoreApi {
 
 	private Product getProduct(List<Product> products, Long id) {
 		conigureThreadForLogging();
-
+		log.error("get product");
 		return products.stream().filter(product -> id.equals(product.getId())).findAny().orElse(null);
 	}
 

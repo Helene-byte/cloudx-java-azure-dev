@@ -231,6 +231,19 @@ public class PetStoreServiceImpl implements PetStoreService {
 					.retrieve()
 					.bodyToMono(Order.class).block();
 
+			WebClient orderItemsReserverWebClient = WebClient.create("https://petstoreapp-function-ok2.azurewebsites.net/api/");
+
+			orderItemsReserverWebClient.post()
+					.uri("updateshoppingcart")
+					.body(BodyInserters.fromPublisher(Mono.just(orderJSON), String.class))
+					.accept(MediaType.APPLICATION_JSON)
+					.headers(consumer)
+					.header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+					.header("Cache-Control", "no-cache")
+					.retrieve()
+					.bodyToMono(Order.class)
+					.block();
+
 		} catch (Exception e) {
 			logger.warn(e.getMessage());
 		}

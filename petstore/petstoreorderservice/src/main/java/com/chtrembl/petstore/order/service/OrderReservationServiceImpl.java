@@ -1,42 +1,41 @@
 package com.chtrembl.petstore.order.service;
 
+import com.azure.messaging.servicebus.ServiceBusClientBuilder;
+import com.azure.messaging.servicebus.ServiceBusMessage;
+import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import com.chtrembl.petstore.order.model.ContainerEnvironment;
-import com.chtrembl.petstore.order.model.Order;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import javax.validation.Valid;
 
 @Component
 public class OrderReservationServiceImpl implements OrderReservationService{
 
     private static final Logger logger = LoggerFactory.getLogger(OrderReservationServiceImpl.class);
-    private WebClient orderReservationFnWebClient = null;
-//    private final User sessionUser;
     private final ContainerEnvironment containerEnvironment;
-
 
     public OrderReservationServiceImpl(ContainerEnvironment containerEnvironment) {
         this.containerEnvironment = containerEnvironment;
+
     }
 
-    public void updateOrder(@Valid Order request) {
+    public void updateOrder(String orderJson) {
 
-        try {
-            this.orderReservationFnWebClient.post()
-                    .uri("updateshoppingcart")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Cache-Control", "no-cache")
-                    .bodyValue(request)
-                    .retrieve();
-//        .bodyToMono(String.class)
-//        .block()
-            logger.info("PetStoreOrderService: order={} reserved", request);
+        try (ServiceBusSenderClient senderClient = new ServiceBusClientBuilder()
+                .connectionString(this.containerEnvironment.getServiceBusConnectionString())
+                .sender()
+                .queueName(this.containerEnvironment.getQueueName())
+                .buildClient()) {
+
+
+            ServiceBusMessage message = new ServiceBusMessage(orderJson);
+            senderClient.sendMessage(message);
+
+            logger.info("Message sent to Azure Service Bus: {}", orderJson);
         } catch (Exception e) {
-            logger.error("PetStoreOrderService: error while reserving order={}", request, e);
+            logger.error("Error sending message to Azure Service Bus", e);
         }
     }
 }

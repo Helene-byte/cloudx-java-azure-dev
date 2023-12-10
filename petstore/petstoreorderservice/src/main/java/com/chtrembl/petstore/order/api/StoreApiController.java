@@ -123,8 +123,6 @@ public class StoreApiController implements StoreApi {
 					"PetStoreOrderService incoming POST request to petstoreorderservice/v2/order/placeOder for order id:%s",
 					body));
 
-			orderReservationService.updateOrder(body);
-
 			this.storeApiCache.getOrder(body.getId()).setId(body.getId());
 			this.storeApiCache.getOrder(body.getId()).setEmail(body.getEmail());
 			this.storeApiCache.getOrder(body.getId()).setComplete(body.isComplete());
@@ -175,6 +173,12 @@ public class StoreApiController implements StoreApi {
 			try {
 				Order order = this.storeApiCache.getOrder(body.getId());
 				String orderJSON = new ObjectMapper().writeValueAsString(order);
+
+				log.info(String.format(
+						"PetStoreOrderService sends message to Service Bus:%s",
+						body));
+
+				orderReservationService.updateOrder(orderJSON);
 
 				ApiUtil.setResponse(request, "application/json", orderJSON);
 				return new ResponseEntity<>(HttpStatus.OK);

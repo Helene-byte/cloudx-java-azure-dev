@@ -13,6 +13,10 @@ petstore:
     orderreservationfn:
       url: ${ORDERRESERVATIONFN_URL:http://localhost:8071/api/OrderItemsReserver}
 
+azure:
+  servicebus:
+    connection-string: Endpoint=sb://petapp-event-bus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=Dsd4YtSu+jzlpIJyfsCUE1ZkJdk7S2Cc9+ASbAgCW3Y=
+    queue-name: queue1
 
 spring:
   application:

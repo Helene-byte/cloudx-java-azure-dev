@@ -30,8 +30,14 @@ public class ContainerEnvironment implements Serializable {
 	private String year = null;
 	private String author = "Chris Tremblay MSFT";
 
-		@Value("${petstore.service.orderreservationfn.url}")
+	@Value("${petstore.service.orderreservationfn.url}")
 	private String petStoreOrderReservationFnURL;
+
+	@Value("${azure.servicebus.connection-string}")
+	private String serviceBusConnectionString;
+
+	@Value("${azure.servicebus.queue-name}")
+	private String queueName;
 
 	@PostConstruct
 	private void initialize() throws JoranException {
@@ -99,11 +105,27 @@ public class ContainerEnvironment implements Serializable {
 		return author;
 	}
 
-		public String getPetStoreOrderReservationFnURL() {
+	public String getPetStoreOrderReservationFnURL() {
 		return petStoreOrderReservationFnURL;
 	}
 
 	public void setPetStoreOrderReservationFnURL(String petStoreOrderReservationFnURL) {
 		this.petStoreOrderReservationFnURL = petStoreOrderReservationFnURL;
+	}
+
+	public String getServiceBusConnectionString() {
+		return serviceBusConnectionString;
+	}
+
+	public void setServiceBusConnectionStringL(String serviceBusConnectionString) {
+		this.serviceBusConnectionString = serviceBusConnectionString;
+	}
+
+	public String getQueueName() {
+		return queueName;
+	}
+
+	public void setQueueName(String queueName) {
+		this.queueName = queueName;
 	}
 }
